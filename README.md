@@ -28,7 +28,7 @@ If you want to simulate motion capture data downloaded from CMU Mocap dataset, y
 3. Plot the motions
 
 ## Example_3DOF_Puma_withoutRTB.m
-```
+```matlab
 %% 1. Load a model from Robotics Toolbox or manually build a model
 robotModel = Model_3DOF_Puma560();  
 
@@ -47,9 +47,7 @@ end
 ```
 
 ## Example_MocapData.m
-<matlab>
-```
-
+```matlab
 % 1. Name the ASF and AMC files you want to display
 AsfFilename = 'MocapData\10.asf';
 AmcFilename = ['MocapData\10_01.amc'; 'MocapData\10_02.amc'; 'MocapData\10_03.amc'; ...
@@ -71,7 +69,6 @@ for ii_file = 1:nFiles
     axisRange = FindAxisRange(mdl_subject{ii_file,1});             % Find appropriate axes for plotting motion               
     DisplayModel(mdl_subject{ii_file,1}, axisRange, bShowFrame, bEETraj);   % Display the motion
 end
-
 ```
 
 ## Files
