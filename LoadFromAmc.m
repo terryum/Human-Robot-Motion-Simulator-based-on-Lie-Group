@@ -6,7 +6,7 @@
 
 function [myModel nData] = LoadFromAmc(AmcFilename, myModel)
  
-    nDataMax = 1000;        % Maximum length of data     
+    nDataMax = 15000;        % Maximum length of data (Need to modify)
     nBody = 6;              % Number of open chains
     T_Body = zeros(4,4,29,nDataMax);    % Euler angles -> Rotation matrices (4 by 4, but P=0)
     EulerAngles_Total =  zeros(nDataMax, 62);
@@ -75,7 +75,7 @@ function [myModel nData] = LoadFromAmc(AmcFilename, myModel)
                 x(1:3,1) = x(1:3,1)/0.45*2.54/100;
                 x(4:6,1) = deg2rad(x(4:6,:));
                 EulerAngle_Temp(nDof_Offset(idx):nDof_Offset(idx)+len-1,1) = x;
-                T = RP01(EulerXYZ(x(4,1),x(5,1),x(6,1)),x(1:3,:));
+                T = RP01(EulerZYX(x(6,1),x(5,1),x(4,1)),x(1:3,:));
             else
                 x_temp = zeros(3,1);    i_temp = 1;
                 if len == 3
@@ -129,8 +129,11 @@ function [myModel nData] = LoadFromAmc(AmcFilename, myModel)
     myModel{4,1}.EulerAngle = EulerAngles_Total(:,nDof_Offset(16):nDof_Offset(18)-1);
     myModel{5,1}.EulerAngle = EulerAngles_Total(:,nDof_Offset(22):nDof_Offset(25)-1);
     myModel{6,1}.EulerAngle = EulerAngles_Total(:,nDof_Offset(26):nDof_Offset(29)-1);
-
+    for kk=1:nBody
+        myModel{kk,1}.EulerAngle(frame+1:nDataMax,:) = [];
+    end
     % T_Moving_Home : Transformation matrices of each joint seen from {home}
+    % T_Moving_Abs  : Relative position/orientation w.r.t the first position/orientation
     for kk=1:nBody
         myModel{kk,1}.T_Moving_Home(:,:,:,nData+1:nDataMax)=[]; % Delete remaining parts
         switch (kk)
@@ -141,10 +144,14 @@ function [myModel nData] = LoadFromAmc(AmcFilename, myModel)
             case {5,6}
                 myModel{kk,1}.T_Moving_Home(:,:,1,:) = myModel{1,1}.T_Moving_Home(:,:,kk-3,:);
         end   
+        
         for ii=1:nData
+            myModel{kk,1}.T_Moving_Abs(:,:,1,ii) = eye(4);
             for jj=2:myModel{kk,1}.nLink
                 % Previous joint position -> rotation-> constant move from i-1 to i joint
                 myModel{kk,1}.T_Moving_Home(:,:,jj,ii) = myModel{kk,1}.T_Moving_Home(:,:,jj-1,ii)*...
+                                myModel{kk,1}.T_Moving_Local(:,:,jj-1,ii)*myModel{kk,1}.T_JointJoint(:,:,jj);
+                myModel{kk,1}.T_Moving_Abs(:,:,jj,ii) = myModel{kk,1}.T_Moving_Abs(:,:,jj-1,ii)*...
                                 myModel{kk,1}.T_Moving_Local(:,:,jj-1,ii)*myModel{kk,1}.T_JointJoint(:,:,jj);
             end 
         end
