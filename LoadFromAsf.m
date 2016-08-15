@@ -4,6 +4,15 @@
 % made by Terry Taewoong Um (terry.t.um@gmail.com)
 % Adaptive Systems Lab., University of Waterloo
 
+% [Model]
+% T_JointHome    : T of each joint w.r.t {home} at home position
+% T_JointJoint   : T of each joint (i) w.r.t. the joint (i-1)
+% Dof            : Degrees of freedom of the joint (e.g.) [1 0 1] 
+% T_Moving_Local : Rotation matrix for each joint (4 by 4 matrix where P=0)
+% T_Moving_Home  : T of each joint w.r.t {home} at each moment
+% T_Moving_Abs   : T of each joint w.r.t the root joint (e.g. throat joint for arm joints)
+% EulerAngle     : EulerAngles described in the amc file.
+
 function myModel = LoadFromAsf(AsfFileName)
 
     nDof =[6 3 3 3 3 3 3 2 3 1 1 2 1 2 2 3 1 1 2 1 2 3 1 2 1 3 1 2 1];  % CMU mocap data structure
@@ -116,15 +125,17 @@ function myModel = LoadFromAsf(AsfFileName)
 
 % Build a model structure    
 % myModel = cell{1_root, 2_torso, 3_rightArm, 4_leftArm, 5_rightLeg, 6_leftLeg};
-    nDataMax = 1000;        % Maximum length of data     
+%     nDataMax = 1500;        % Maximum length of data     
+    nDataMax = 15000;        % Maximum length of data   
     nBody = 6;              % Number of open chains
+
     myModel = cell(nBody,1);
-    myModel{1,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,3,nDataMax), 'EulerAngle', zeros(nDataMax,6), 'Dof_AllBody', zeros(29,3), 'nDof_AllBody', zeros(29,1));
-    myModel{2,1} = struct('nLink', 6, 'T_JointHome', zeros(4,4,6), 'T_JointJoint', zeros(4,4,6), 'Dof', zeros(6,3), 'T_Moving_Local', zeros(4,4,5,nDataMax), 'T_Moving_Home', zeros(4,4,6,nDataMax), 'EulerAngle', zeros(nDataMax,12));
-    myModel{3,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,4));
-    myModel{4,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,4));
-    myModel{5,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,6));
-    myModel{6,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,6));
+    myModel{1,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,3,nDataMax), 'T_Moving_Abs', zeros(4,4,3,nDataMax), 'EulerAngle', zeros(nDataMax,6), 'Dof_AllBody', zeros(29,3), 'nDof_AllBody', zeros(29,1));
+    myModel{2,1} = struct('nLink', 6, 'T_JointHome', zeros(4,4,6), 'T_JointJoint', zeros(4,4,6), 'Dof', zeros(6,3), 'T_Moving_Local', zeros(4,4,5,nDataMax), 'T_Moving_Home', zeros(4,4,6,nDataMax), 'T_Moving_Abs', zeros(4,4,6,nDataMax), 'EulerAngle', zeros(nDataMax,12));
+    myModel{3,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'T_Moving_Abs', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,4));
+    myModel{4,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'T_Moving_Abs', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,4));
+    myModel{5,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'T_Moving_Abs', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,6));
+    myModel{6,1} = struct('nLink', 4, 'T_JointHome', zeros(4,4,4), 'T_JointJoint', zeros(4,4,4), 'Dof', zeros(4,3), 'T_Moving_Local', zeros(4,4,3,nDataMax), 'T_Moving_Home', zeros(4,4,4,nDataMax), 'T_Moving_Abs', zeros(4,4,4,nDataMax), 'EulerAngle', zeros(nDataMax,6));
  
 %   Set transformation matrices for the root frames (waist, left hip joint, right hip joint)  
 %   myModel{1,1} : Triangular-shaped root. root-rightHip-leftHip-root 

@@ -18,7 +18,6 @@ addpath('./SE3_Operations');
 AsfFilename = 'MocapData\10.asf';
 AmcFilename = ['MocapData\10_01.amc'; 'MocapData\10_02.amc'; 'MocapData\10_03.amc'; ...
                 'MocapData\10_05.amc'; 'MocapData\10_06.amc';];
-
 nFiles = size(AmcFilename,1);   % number of motions
 nData = zeros(nFiles,1);        % Length of each motion
 % mdl_subject{kk,1} : cell{root, torso, rightArm, leftArm, rlightLeg, leftLeg}

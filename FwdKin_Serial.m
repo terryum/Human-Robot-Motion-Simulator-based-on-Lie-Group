@@ -4,7 +4,7 @@
 % made by Terry Taewoong Um (terry.t.um@gmail.com)
 % Adaptive Systems Lab., University of Waterloo
 
-% [input] q_query : n*1 angle input 
+% [input] q_query : 1*n angle input 
 % [output] T_out : 4*4 SE(3) for the end-effector
 
 function [T_EE T_AllJoint] = FwdKin_Serial(robotModel, q_query)
